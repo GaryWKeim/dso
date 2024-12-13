@@ -16,7 +16,7 @@
  */
 package com.tc.test;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import com.tc.config.Directories;
 import com.tc.lcp.LinkedJavaProcess;

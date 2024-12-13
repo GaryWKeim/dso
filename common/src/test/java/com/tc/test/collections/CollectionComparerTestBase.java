@@ -16,7 +16,7 @@
  */
 package com.tc.test.collections;
 
-import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import com.tc.test.TCTestCase;
 import com.tc.util.EqualityComparator;

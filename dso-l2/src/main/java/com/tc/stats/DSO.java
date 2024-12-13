@@ -16,7 +16,7 @@
  */
 package com.tc.stats;
 
-import org.apache.commons.collections.set.ListOrderedSet;
+import org.apache.commons.collections4.set.ListOrderedSet;
 
 import com.tc.logging.TCLogger;
 import com.tc.logging.TCLogging;

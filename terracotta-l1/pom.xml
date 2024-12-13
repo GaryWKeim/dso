@@ -78,6 +78,7 @@
                   <artifact>*:*</artifact>
                   <excludes>
                     <exclude>**/META-INF/maven/org.terracotta.internal/**</exclude>
+                    <exclude>**/.gitignore</exclude>
                   </excludes>
                 </filter>		  
               </filters>    

@@ -16,7 +16,7 @@
  */
 package com.tc.util.diff;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.EqualsBuilder;
 
 import com.tc.test.TCTestCase;
 import com.tc.util.Stringifier;

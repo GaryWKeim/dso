@@ -22,7 +22,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import com.tc.config.schema.beanfactory.TerracottaDomainConfigurationDocumentBeanFactory;
 import com.tc.config.schema.defaults.SchemaDefaultValueProvider;

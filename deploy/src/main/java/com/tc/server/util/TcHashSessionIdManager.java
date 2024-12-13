@@ -16,15 +16,13 @@
  */
 package com.tc.server.util;
 
+import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.SessionIdManager;
-import org.eclipse.jetty.server.session.DefaultSessionIdManager;
-import org.eclipse.jetty.server.session.HouseKeeper;
-import org.eclipse.jetty.server.session.SessionHandler;
+import org.eclipse.jetty.session.SessionIdManager;
+import org.eclipse.jetty.session.DefaultSessionIdManager;
+import org.eclipse.jetty.session.HouseKeeper;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.EventListener;
-import java.util.Set;
 
 /**
  * Delegates to Jetty's HashSessionIdManager but initializes it lazily
@@ -32,7 +30,16 @@ import java.util.Set;
  */
 public class TcHashSessionIdManager implements SessionIdManager {
 
-  private volatile DefaultSessionIdManager delegate;
+  private final DefaultSessionIdManager delegate;
+
+  private final Server server;
+
+  public TcHashSessionIdManager(Server server) {
+    this.server = server;
+
+    this.delegate = new DefaultSessionIdManager(this.server);
+    this.delegate.setWorkerName("tcSessions");
+  }
 
   @Override
   public String getId(String nodeId) {
@@ -40,8 +47,13 @@ public class TcHashSessionIdManager implements SessionIdManager {
   }
 
   @Override
-  public String getExtendedId(String clusterId, HttpServletRequest request) {
-    return getDelegate().getExtendedId(clusterId, request);
+  public String getExtendedId(String s, Request request) {
+    return getDelegate().getExtendedId(s, request);
+  }
+
+  @Override
+  public void scavenge() {
+
   }
 
   @Override
@@ -51,14 +63,14 @@ public class TcHashSessionIdManager implements SessionIdManager {
 
 
   @Override
-  public String renewSessionId(String oldId, String oldExtendedId, HttpServletRequest request) {
+  public String renewSessionId(String oldId, String oldExtendedId, Request request) {
     return getDelegate().renewSessionId(oldId, oldExtendedId, request);
   }
 
-  @Override
-  public Set<SessionHandler> getSessionHandlers() {
-    return getDelegate().getSessionHandlers();
-  }
+//  @Override
+//  public Set<SessionHandler> getSessionHandlers() {
+//    return getDelegate().getSessionHandlers();
+//  }
 
   @Override
   public void setSessionHouseKeeper(HouseKeeper houseKeeper) {
@@ -87,97 +99,61 @@ public class TcHashSessionIdManager implements SessionIdManager {
   }
 
   @Override
+  public String newSessionId(Request request, String s, long l) {
+    return "";
+  }
+
+  @Override
   public boolean isFailed() {
-    if (delegate == null) { return false; }
     return getDelegate().isFailed();
   }
 
   @Override
   public boolean addEventListener(EventListener eventListener) {
-    if (delegate == null) { return false; }
     return getDelegate().addEventListener(eventListener);
   }
 
   @Override
   public boolean removeEventListener(EventListener eventListener) {
-    if (delegate == null) { return false; }
     return getDelegate().removeEventListener(eventListener);
   }
 
   @Override
   public final void start() throws Exception {
-    if (delegate != null) { return; }
-
-    // Initialize delegate lazily to prevent the SecureRandom
-    // it contains from blocking the jetty initialization.
-    Thread thread = new Thread() {
-      @Override
-      public void run() {
-        getDelegate();
-      }
-    };
-    thread.setName("TcHashSessionIdManager initializer");
-    thread.setDaemon(true);
-    thread.start();
+    getDelegate().start();
   }
 
   @Override
   public final void stop() throws Exception {
-    if (delegate == null) { return; }
     getDelegate().stop();
-    delegate = null;
   }
 
   @Override
   public boolean isRunning() {
-    if (delegate == null) { return false; }
     return getDelegate().isRunning();
   }
 
   @Override
   public boolean isStarted() {
-    if (delegate == null) { return false; }
     return getDelegate().isStarted();
   }
 
   @Override
   public boolean isStarting() {
-    if (delegate == null) { return false; }
     return getDelegate().isStarting();
   }
 
   @Override
   public boolean isStopping() {
-    if (delegate == null) { return false; }
     return getDelegate().isStopping();
   }
 
   @Override
   public boolean isStopped() {
-    if (delegate == null) { return true; }
     return getDelegate().isStopped();
   }
 
-  @Override
-  public String newSessionId(HttpServletRequest request, long created) {
-    return getDelegate().newSessionId(request, created);
-  }
-
   private DefaultSessionIdManager getDelegate() {
-    if (delegate != null) { return delegate; }
-    synchronized (this) {
-      if (delegate != null) { return delegate; }
-
-      DefaultSessionIdManager realManager = new DefaultSessionIdManager(new Server());
-      try {
-        realManager.start();
-      } catch (Exception e) {
-        throw new RuntimeException(e);
-      }
-
-      delegate = realManager;
-
-      return delegate;
-    }
+    return delegate;
   }
 }

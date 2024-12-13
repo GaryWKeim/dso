@@ -116,11 +116,9 @@ public class DSOServerBindAddressTest extends BaseDSOTestCase {
   }
 
   public void testDSOServerAndJMXBindAddress() throws Exception {
-    boolean resourceUseCaches = Resource.getDefaultUseCaches();
     boolean jarProtocolUseCaches = URLConnection.getDefaultUseCaches("jar");
 
     if (isWindows) {
-      Resource.setDefaultUseCaches(false);
       URLConnection.setDefaultUseCaches("jar", false);
     }
 
@@ -168,7 +166,6 @@ public class DSOServerBindAddressTest extends BaseDSOTestCase {
     }
 
     if (isWindows) {
-      Resource.setDefaultUseCaches(resourceUseCaches);
       URLConnection.setDefaultUseCaches("jar", jarProtocolUseCaches);
     }
   }

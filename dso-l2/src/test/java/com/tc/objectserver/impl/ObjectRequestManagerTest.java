@@ -19,7 +19,7 @@ package com.tc.objectserver.impl;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
-import org.apache.commons.lang.NotImplementedException;
+import org.apache.commons.lang3.NotImplementedException;
 
 import com.tc.async.api.Sink;
 import com.tc.bytes.TCByteBuffer;
@@ -700,12 +700,12 @@ public class ObjectRequestManagerTest extends TestCase {
 
     @Override
     public void addEventListener(final DSOChannelManagerEventListener listener) {
-      throw new NotImplementedException(TestDSOChannelManager.class);
+      throw new NotImplementedException(TestDSOChannelManager.class.getSimpleName());
     }
 
     @Override
     public void closeAll(final Collection channelIDs) {
-      throw new NotImplementedException(TestDSOChannelManager.class);
+      throw new NotImplementedException(TestDSOChannelManager.class.getSimpleName());
     }
 
     @Override
@@ -715,52 +715,52 @@ public class ObjectRequestManagerTest extends TestCase {
 
     @Override
     public MessageChannel[] getActiveChannels() {
-      throw new NotImplementedException(TestDSOChannelManager.class);
+      throw new NotImplementedException(TestDSOChannelManager.class.getSimpleName());
     }
 
     @Override
     public TCConnection[] getAllActiveClientConnections() {
-      throw new NotImplementedException(TestDSOChannelManager.class);
+      throw new NotImplementedException(TestDSOChannelManager.class.getSimpleName());
     }
 
     @Override
     public Set getAllClientIDs() {
-      throw new NotImplementedException(TestDSOChannelManager.class);
+      throw new NotImplementedException(TestDSOChannelManager.class.getSimpleName());
     }
 
     @Override
     public String getChannelAddress(final NodeID nid) {
-      throw new NotImplementedException(TestDSOChannelManager.class);
+      throw new NotImplementedException(TestDSOChannelManager.class.getSimpleName());
     }
 
     @Override
     public ClientID getClientIDFor(final ChannelID channelID) {
-      throw new NotImplementedException(TestDSOChannelManager.class);
+      throw new NotImplementedException(TestDSOChannelManager.class.getSimpleName());
     }
 
     @Override
     public boolean isActiveID(final NodeID nodeID) {
-      throw new NotImplementedException(TestDSOChannelManager.class);
+      throw new NotImplementedException(TestDSOChannelManager.class.getSimpleName());
     }
 
     @Override
     public void makeChannelActive(final ClientID clientID, final boolean persistent) {
-      throw new NotImplementedException(TestDSOChannelManager.class);
+      throw new NotImplementedException(TestDSOChannelManager.class.getSimpleName());
     }
 
     @Override
     public void makeChannelActiveNoAck(final MessageChannel channel) {
-      throw new NotImplementedException(TestDSOChannelManager.class);
+      throw new NotImplementedException(TestDSOChannelManager.class.getSimpleName());
     }
 
     @Override
     public BatchTransactionAcknowledgeMessage newBatchTransactionAcknowledgeMessage(final NodeID nid) {
-      throw new NotImplementedException(TestDSOChannelManager.class);
+      throw new NotImplementedException(TestDSOChannelManager.class.getSimpleName());
     }
 
     @Override
     public void makeChannelRefuse(ClientID clientID, String message) {
-      throw new NotImplementedException(TestDSOChannelManager.class);
+      throw new NotImplementedException(TestDSOChannelManager.class.getSimpleName());
     }
 
   }
@@ -771,27 +771,27 @@ public class ObjectRequestManagerTest extends TestCase {
 
     @Override
     public boolean addReference(final NodeID nodeID, final ObjectID objectID) {
-      throw new NotImplementedException(TestClientStateManager.class);
+      throw new NotImplementedException(TestClientStateManager.class.getSimpleName());
     }
 
     @Override
     public boolean hasReference(final NodeID nodeID, final ObjectID objectID) {
-      throw new NotImplementedException(TestClientStateManager.class);
+      throw new NotImplementedException(TestClientStateManager.class.getSimpleName());
     }
 
     @Override
     public void shutdownNode(final NodeID deadNode) {
-      throw new NotImplementedException(TestClientStateManager.class);
+      throw new NotImplementedException(TestClientStateManager.class.getSimpleName());
     }
 
     @Override
     public boolean startupNode(final NodeID nodeID) {
-      throw new NotImplementedException(TestClientStateManager.class);
+      throw new NotImplementedException(TestClientStateManager.class.getSimpleName());
     }
 
     @Override
     public Set<ObjectID> addAllReferencedIdsTo(final Set<ObjectID> rescueIds) {
-      throw new NotImplementedException(TestClientStateManager.class);
+      throw new NotImplementedException(TestClientStateManager.class.getSimpleName());
     }
 
     @Override
@@ -822,22 +822,22 @@ public class ObjectRequestManagerTest extends TestCase {
     public List<DNA> createPrunedChangesAndAddObjectIDTo(final Collection<DNA> changes,
                                                          final ApplyTransactionInfo references, final NodeID clientID,
                                                          final Set<ObjectID> objectIDs, final Invalidations invalidIDs) {
-      throw new NotImplementedException(TestClientStateManager.class);
+      throw new NotImplementedException(TestClientStateManager.class.getSimpleName());
     }
 
     @Override
     public Set<NodeID> getConnectedClientIDs() {
-      throw new NotImplementedException(TestClientStateManager.class);
+      throw new NotImplementedException(TestClientStateManager.class.getSimpleName());
     }
 
     @Override
     public int getReferenceCount(final NodeID nodeID) {
-      throw new NotImplementedException(TestClientStateManager.class);
+      throw new NotImplementedException(TestClientStateManager.class.getSimpleName());
     }
 
     @Override
     public void removeReferencedFrom(final NodeID nodeID, final Set<ObjectID> secondPass) {
-      throw new NotImplementedException(TestClientStateManager.class);
+      throw new NotImplementedException(TestClientStateManager.class.getSimpleName());
     }
 
     @Override
@@ -874,37 +874,37 @@ public class ObjectRequestManagerTest extends TestCase {
 
     @Override
     public void createRoot(final String name, final ObjectID id) {
-      throw new NotImplementedException(TestObjectManager.class);
+      throw new NotImplementedException(TestObjectManager.class.getSimpleName());
     }
 
     @Override
     public ObjectIDSet getAllObjectIDs() {
-      throw new NotImplementedException(TestObjectManager.class);
+      throw new NotImplementedException(TestObjectManager.class.getSimpleName());
     }
 
     @Override
     public int getCheckedOutCount() {
-      throw new NotImplementedException(TestObjectManager.class);
+      throw new NotImplementedException(TestObjectManager.class.getSimpleName());
     }
 
     @Override
     public GarbageCollector getGarbageCollector() {
-      throw new NotImplementedException(TestObjectManager.class);
+      throw new NotImplementedException(TestObjectManager.class.getSimpleName());
     }
 
     @Override
     public Set getRootIDs() {
-      throw new NotImplementedException(TestObjectManager.class);
+      throw new NotImplementedException(TestObjectManager.class.getSimpleName());
     }
 
     @Override
     public Map getRootNamesToIDsMap() {
-      throw new NotImplementedException(TestObjectManager.class);
+      throw new NotImplementedException(TestObjectManager.class.getSimpleName());
     }
 
     @Override
     public Iterator getRoots() {
-      throw new NotImplementedException(TestObjectManager.class);
+      throw new NotImplementedException(TestObjectManager.class.getSimpleName());
     }
 
     @Override
@@ -930,22 +930,22 @@ public class ObjectRequestManagerTest extends TestCase {
 
     @Override
     public boolean lookupObjectsFor(final NodeID nodeID, final ObjectManagerResultsContext context) {
-      throw new NotImplementedException(TestObjectManager.class);
+      throw new NotImplementedException(TestObjectManager.class.getSimpleName());
     }
 
     @Override
     public ObjectID lookupRootID(final String name) {
-      throw new NotImplementedException(TestObjectManager.class);
+      throw new NotImplementedException(TestObjectManager.class.getSimpleName());
     }
 
     @Override
     public void notifyGCComplete(final DGCResultContext dgcResultContext) {
-      throw new NotImplementedException(TestObjectManager.class);
+      throw new NotImplementedException(TestObjectManager.class.getSimpleName());
     }
 
     @Override
     public void release(final ManagedObject object) {
-      throw new NotImplementedException(TestObjectManager.class);
+      throw new NotImplementedException(TestObjectManager.class.getSimpleName());
     }
 
     @Override
@@ -960,32 +960,32 @@ public class ObjectRequestManagerTest extends TestCase {
 
     @Override
     public void stop() {
-      throw new NotImplementedException(TestObjectManager.class);
+      throw new NotImplementedException(TestObjectManager.class.getSimpleName());
     }
 
     @Override
     public void waitUntilReadyToGC() {
-      throw new NotImplementedException(TestObjectManager.class);
+      throw new NotImplementedException(TestObjectManager.class.getSimpleName());
     }
 
     @Override
     public ManagedObject getObjectByID(final ObjectID id) {
-      throw new NotImplementedException(TestObjectManager.class);
+      throw new NotImplementedException(TestObjectManager.class.getSimpleName());
     }
 
     @Override
     public void createNewObjects(final Set<ObjectID> ids) {
-      throw new NotImplementedException(TestObjectManager.class);
+      throw new NotImplementedException(TestObjectManager.class.getSimpleName());
     }
 
     @Override
     public ObjectIDSet getObjectIDsInCache() {
-      throw new NotImplementedException(TestObjectManager.class);
+      throw new NotImplementedException(TestObjectManager.class.getSimpleName());
     }
 
     @Override
     public void releaseAll(final Collection<ManagedObject> collection) {
-      throw new NotImplementedException(TestObjectManager.class);
+      throw new NotImplementedException(TestObjectManager.class.getSimpleName());
     }
 
     @Override
@@ -995,27 +995,27 @@ public class ObjectRequestManagerTest extends TestCase {
 
     @Override
     public void setGarbageCollector(final GarbageCollector gc) {
-      throw new NotImplementedException(TestObjectManager.class);
+      throw new NotImplementedException(TestObjectManager.class.getSimpleName());
     }
 
     @Override
     public ObjectIDSet getObjectReferencesFrom(final ObjectID id, final boolean cacheOnly) {
-      throw new NotImplementedException(TestObjectManager.class);
+      throw new NotImplementedException(TestObjectManager.class.getSimpleName());
     }
 
     @Override
     public int getLiveObjectCount() {
-      throw new NotImplementedException(TestObjectManager.class);
+      throw new NotImplementedException(TestObjectManager.class.getSimpleName());
     }
 
     @Override
     public Iterator getRootNames() {
-      throw new NotImplementedException(TestObjectManager.class);
+      throw new NotImplementedException(TestObjectManager.class.getSimpleName());
     }
 
     @Override
     public ManagedObject getObjectByIDReadOnly(final ObjectID id) {
-      throw new NotImplementedException(TestObjectManager.class);
+      throw new NotImplementedException(TestObjectManager.class.getSimpleName());
     }
 
     @Override

@@ -17,7 +17,7 @@
 package com.tc.net.protocol.transport;
 
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import com.tc.logging.LogLevelImpl;
 import com.tc.logging.TCLogger;

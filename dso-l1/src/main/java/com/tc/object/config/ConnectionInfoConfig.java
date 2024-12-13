@@ -16,7 +16,7 @@
  */
 package com.tc.object.config;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import com.tc.config.schema.L2ConfigForL1.L2Data;
 import com.tc.logging.CustomerLogging;

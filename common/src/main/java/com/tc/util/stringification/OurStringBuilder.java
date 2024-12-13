@@ -16,10 +16,10 @@
  */
 package com.tc.util.stringification;
 
-import org.apache.commons.lang.SystemUtils;
-import org.apache.commons.lang.builder.StandardToStringStyle;
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
+import org.apache.commons.lang3.SystemUtils;
+import org.apache.commons.lang3.builder.StandardToStringStyle;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 
 /**
  * A subclass of {@link ToStringBuilder} that lets us override things as we'd want.

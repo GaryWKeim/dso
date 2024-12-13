@@ -29,8 +29,8 @@ import com.terracotta.management.web.utils.TSAConfig;
 import org.apache.shiro.web.env.EnvironmentLoaderListener;
 import org.terracotta.management.ServiceLocator;
 
-import javax.servlet.ServletContext;
-import javax.servlet.ServletContextEvent;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletContextEvent;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.ServiceLoader;

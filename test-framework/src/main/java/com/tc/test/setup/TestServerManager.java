@@ -16,8 +16,12 @@
  */
 package com.tc.test.setup;
 
+import org.eclipse.jetty.http.HttpHeader;
+import org.eclipse.jetty.io.Content;
+import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Request;
-import org.eclipse.jetty.server.handler.AbstractHandler;
+import org.eclipse.jetty.server.Response;
+import org.eclipse.jetty.util.Callback;
 import org.terracotta.license.util.IOUtils;
 import org.terracotta.test.util.TestBaseUtil;
 import org.terracotta.tests.base.AbstractTestBase;
@@ -35,13 +39,8 @@ import com.tc.util.concurrent.ThreadUtil;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import junit.framework.Assert;
 
@@ -379,18 +378,13 @@ public class TestServerManager {
     return "localhost:" + proxyJettyPort;
   }
 
-  private class ProxyConfigHandler extends AbstractHandler {
+  private class ProxyConfigHandler extends Handler.Wrapper {
     @Override
-    public void handle(final String target, final Request baseRequest, final HttpServletRequest request,
-                       final HttpServletResponse response) throws IOException, ServletException {
-      response.setContentType("text/xml;charset=utf-8");
-      response.setStatus(HttpServletResponse.SC_OK);
-      baseRequest.setHandled(true);
-      try {
-        response.getWriter().println(getTsaProxyConfig());
-      } catch (Exception e) {
-        throw new ServletException(e);
-      }
+    public boolean handle(Request request, Response response, Callback callback) throws Exception {
+      response.setStatus(200);
+      response.getHeaders().put(HttpHeader.CONTENT_TYPE, "text/xml; charset=UTF-8");
+      Content.Sink.write(response, true, getTsaProxyConfig(), callback);
+      return true;
     }
   }
 }

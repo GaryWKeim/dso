@@ -64,8 +64,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.management.Notification;
 import javax.management.ObjectName;
-import javax.ws.rs.ProcessingException;
-import javax.ws.rs.core.UriBuilder;
+import jakarta.ws.rs.ProcessingException;
+import jakarta.ws.rs.core.UriBuilder;
 
 import static com.terracotta.management.service.impl.util.RemoteManagementSource.toCsv;
 

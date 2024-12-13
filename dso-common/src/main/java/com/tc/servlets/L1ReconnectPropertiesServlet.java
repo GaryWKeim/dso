@@ -28,9 +28,9 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigInteger;
 
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 public class L1ReconnectPropertiesServlet extends HttpServlet {
   public static final String                  GATHER_L1_RECONNECT_PROP_FROM_L2 = L1ReconnectPropertiesServlet.class

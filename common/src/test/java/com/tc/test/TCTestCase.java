@@ -16,7 +16,7 @@
  */
 package com.tc.test;
 
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import com.tc.exception.TCRuntimeException;
 import com.tc.logging.TCLogging;
@@ -509,7 +509,7 @@ public class TCTestCase extends TestCase {
   }
 
   protected final void fail(String message, Throwable t) {
-    fail((message == null ? "" : (message + "\n")) + "Exception:\n" + ExceptionUtils.getFullStackTrace(t));
+    fail((message == null ? "" : (message + "\n")) + "Exception:\n" + ExceptionUtils.getStackTrace(t));
   }
 
   private Date parseDate(String date) {

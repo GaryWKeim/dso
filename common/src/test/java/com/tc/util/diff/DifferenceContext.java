@@ -16,7 +16,7 @@
  */
 package com.tc.util.diff;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.EqualsBuilder;
 
 import com.tc.util.Assert;
 import com.tc.util.StandardStringifier;

@@ -42,7 +42,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 
 public class GroupInfoServletTest extends TCTestCase {
   L2ConfigurationSetupManager configSetupMgr;

@@ -19,7 +19,6 @@ package com.tc.server;
 import com.tc.config.schema.setup.ConfigurationSetupManagerFactory;
 import com.tc.config.schema.setup.FatalIllegalConfigurationChangeHandler;
 import com.tc.config.schema.setup.StandardConfigurationSetupManagerFactory;
-import com.tc.exception.MortbayMultiExceptionHelper;
 import com.tc.lang.TCThreadGroup;
 import com.tc.lang.ThrowableHandler;
 import com.tc.lang.ThrowableHandlerImpl;
@@ -29,7 +28,6 @@ public class TCServerMain {
 
   public static void main(final String[] args) {
     ThrowableHandler throwableHandler = new ThrowableHandlerImpl(TCLogging.getLogger(TCServerMain.class));
-    throwableHandler.addHelper(new MortbayMultiExceptionHelper());
 
     try {
       TCThreadGroup threadGroup = new TCThreadGroup(throwableHandler);

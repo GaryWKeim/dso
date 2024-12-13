@@ -33,7 +33,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 
-import javax.ws.rs.client.WebTarget;
+import jakarta.ws.rs.client.WebTarget;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 

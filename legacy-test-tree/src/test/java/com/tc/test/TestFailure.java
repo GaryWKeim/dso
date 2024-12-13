@@ -16,7 +16,7 @@
  */
 package com.tc.test;
 
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import java.util.Date;
 
@@ -38,7 +38,7 @@ public class TestFailure {
   public String toString() {
     StringBuffer buf = new StringBuffer( new Date(timestamp) + " " + thread + message );
     if (this.throwable != null) {
-      buf.append(": " + ExceptionUtils.getFullStackTrace(this.throwable));
+      buf.append(": " + ExceptionUtils.getStackTrace(this.throwable));
     }
     return buf.toString();
   }

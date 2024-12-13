@@ -14,11 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import org.eclipse.jetty.util.MultiException;
 
 import com.tc.exception.ExceptionHelper;
 import com.tc.exception.ExceptionHelperImpl;
-import com.tc.exception.MortbayMultiExceptionHelper;
 import com.tc.exception.RuntimeExceptionHelper;
 
 import junit.framework.TestCase;
@@ -27,11 +25,9 @@ public class ExceptionHelperTest extends TestCase {
   public void test() {
     ExceptionHelperImpl helper = new ExceptionHelperImpl();
     helper.addHelper(new RuntimeExceptionHelper());
-    helper.addHelper(new MortbayMultiExceptionHelper());
 
     Throwable ultimateCause = new RuntimeException();
-    Exception proximateCause = new MultiException();
-    ((MultiException) proximateCause).add(ultimateCause);
+    Exception proximateCause = new RuntimeException(ultimateCause);
     Exception top = new RuntimeException(proximateCause);
     check(helper, ultimateCause, proximateCause, top);
   }

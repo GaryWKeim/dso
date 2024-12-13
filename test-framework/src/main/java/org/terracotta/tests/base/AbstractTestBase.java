@@ -17,7 +17,7 @@
 package org.terracotta.tests.base;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.ClassUtils;
+import org.apache.commons.lang3.ClassUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

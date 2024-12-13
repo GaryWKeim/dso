@@ -16,7 +16,7 @@
  */
 package com.tc.test.collections;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.EqualsBuilder;
 
 import com.tc.util.Assert;
 import com.tc.util.Stringifier;

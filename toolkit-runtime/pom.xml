@@ -454,7 +454,7 @@
 									*
 								</Import-Package>
 								<Export-Package>org.terracotta.toolkit.*;-split-package:=merge-last</Export-Package>
-								<Bundle-RequiredExecutionEnvironment>JavaSE-11</Bundle-RequiredExecutionEnvironment>
+								<Bundle-RequiredExecutionEnvironment>JavaSE-17</Bundle-RequiredExecutionEnvironment>
 								<Bundle-ClassPath>., {maven-dependencies}</Bundle-ClassPath>
 								<Include-Resource>{maven-resources}, {maven-dependencies},
 									target/classes

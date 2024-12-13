@@ -16,13 +16,12 @@
  */
 package com.tc.test.config.builder;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.terracotta.test.util.TestBaseUtil;
-
 import java.io.File;
 import java.net.URL;
 import java.net.URLClassLoader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.terracotta.test.util.TestBaseUtil;
 
 /**
  * @author Ludovic Orban
@@ -54,19 +53,17 @@ public class TmsManager {
   public void start() throws Exception {
     LOG.info("Deploying TMS on port " + listenPort + " with war archive: " + warLocation);
 
-    // those are the jetty-8.1.7.v20120910 dependencies
     URL[] urls = {
         new File(TestBaseUtil.jarFor(Class.forName("org.apache.taglibs.standard.lang.jstl.VariableResolver"))).toURI().toURL(),
-        new File(TestBaseUtil.jarFor(Class.forName("javax.servlet.jsp.jstl.core.ConditionalTagSupport"))).toURI().toURL(),
-        new File(TestBaseUtil.jarFor(Class.forName("com.sun.el.ExpressionFactoryImpl"))).toURI().toURL(),
-        new File(TestBaseUtil.jarFor(Class.forName("javax.el.ELException"))).toURI().toURL(),
-        new File(TestBaseUtil.jarFor(Class.forName("javax.servlet.ServletContext"))).toURI().toURL(),
-        new File(TestBaseUtil.jarFor(Class.forName("javax.servlet.jsp.JspApplicationContext"))).toURI().toURL(),
-        new File(TestBaseUtil.jarFor(Class.forName("org.apache.jasper.servlet.JspServlet"))).toURI().toURL(),
+        new File(TestBaseUtil.jarFor(Class.forName("jakarta.servlet.jsp.jstl.core.ConditionalTagSupport"))).toURI().toURL(),
+        new File(TestBaseUtil.jarFor(Class.forName("org.apache.el.ExpressionFactoryImpl"))).toURI().toURL(),
+        new File(TestBaseUtil.jarFor(Class.forName("jakarta.el.ELException"))).toURI().toURL(),
+        new File(TestBaseUtil.jarFor(Class.forName("jakarta.servlet.ServletContext"))).toURI().toURL(),
+        new File(TestBaseUtil.jarFor(Class.forName("jakarta.servlet.jsp.JspApplicationContext"))).toURI().toURL(),
+        new File(TestBaseUtil.jarFor(Class.forName("org.eclipse.jetty.ee10.jsp.JettyJspServlet"))).toURI().toURL(),
         new File(TestBaseUtil.jarFor(Class.forName("org.apache.xerces.jaxp.SAXParserFactoryImpl"))).toURI().toURL(),
-        new File(TestBaseUtil.jarFor(Class.forName("javax.servlet.ServletContext"))).toURI().toURL(),
-        new File(TestBaseUtil.jarFor(Class.forName("org.eclipse.jetty.server.ssl.SslSocketConnector"))).toURI().toURL(),
-        new File(TestBaseUtil.jarFor(Class.forName("org.eclipse.jetty.webapp.WebAppContext"))).toURI().toURL(),
+        new File(TestBaseUtil.jarFor(Class.forName("org.eclipse.jetty.server.ServerConnector"))).toURI().toURL(),
+        new File(TestBaseUtil.jarFor(Class.forName("org.eclipse.jetty.ee10.webapp.WebAppContext"))).toURI().toURL(),
         new File(TestBaseUtil.jarFor(Class.forName("org.eclipse.jetty.util.Attributes"))).toURI().toURL(),
         // new File(TestBaseUtil.jarFor(Class.forName("org.objectweb.asm.ClassVisitor"))).toURI().toURL(),
         new File(TestBaseUtil.jarFor(Class.forName("org.eclipse.jetty.server.Server"))).toURI().toURL()
@@ -78,7 +75,7 @@ public class TmsManager {
 
     Class<?> serverClazz = classloader.loadClass("org.eclipse.jetty.server.Server");
     Class<?> handlerClazz = classloader.loadClass("org.eclipse.jetty.server.Handler");
-    Class<?> webAppContextClazz = classloader.loadClass("org.eclipse.jetty.webapp.WebAppContext");
+    Class<?> webAppContextClazz = classloader.loadClass("org.eclipse.jetty.ee10.webapp.WebAppContext");
 
     Object webAppContext = webAppContextClazz.newInstance();
     webAppContextClazz.getMethod("setContextPath", String.class).invoke(webAppContext, "/tmc");
@@ -89,19 +86,20 @@ public class TmsManager {
     } else {
       server = serverClazz.getConstructor().newInstance();
 
+      Class<?> contextFactoryClazz = classloader.loadClass("org.eclipse.jetty.server.ConnectionFactory");
       Class<?> sslContextFactoryClazz = classloader.loadClass("org.eclipse.jetty.util.ssl.SslContextFactory");
-      Class<?> sslSocketConnectorClazz = classloader.loadClass("org.eclipse.jetty.server.ssl.SslSocketConnector");
       Class<?> connectorClazz = classloader.loadClass("org.eclipse.jetty.server.Connector");
+      Class<?> serverConnectorClazz = classloader.loadClass("org.eclipse.jetty.server.ServerConnector");
 
       Object sslContextFactory = sslContextFactoryClazz.getConstructor().newInstance();
       sslContextFactoryClazz.getMethod("setKeyStorePath", String.class).invoke(sslContextFactory, keystorePath);
       sslContextFactoryClazz.getMethod("setKeyStorePassword", String.class).invoke(sslContextFactory, keystorePassword);
       sslContextFactoryClazz.getMethod("setCertAlias", String.class).invoke(sslContextFactory, "l2");
 
-      Object sslSocketConnector = sslSocketConnectorClazz.getConstructor(sslContextFactoryClazz).newInstance(sslContextFactory);
-      sslSocketConnectorClazz.getMethod("setPort", int.class).invoke(sslSocketConnector, listenPort);
+      Object serverConnector = serverConnectorClazz.getConstructor(serverClazz, contextFactoryClazz).newInstance(server, sslContextFactory);
+      serverConnectorClazz.getMethod("setPort", int.class).invoke(serverConnector, listenPort);
 
-      serverClazz.getMethod("addConnector", connectorClazz).invoke(server, sslSocketConnector);
+      serverClazz.getMethod("addConnector", connectorClazz).invoke(server, serverConnector);
     }
 
     serverClazz.getMethod("setHandler", handlerClazz).invoke(server, webAppContext);

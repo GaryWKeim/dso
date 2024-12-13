@@ -20,8 +20,8 @@ import org.terracotta.management.resource.ErrorEntity;
 
 import com.terracotta.management.web.proxy.ProxyException;
 
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Response;
 
 /**
  * @author Ludovic Orban

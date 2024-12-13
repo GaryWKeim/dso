@@ -16,40 +16,6 @@
  */
 package com.tc.server;
 
-import com.tc.net.core.PipeSocket;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
-import org.eclipse.jetty.http.HttpMethod;
-import org.eclipse.jetty.security.ConstraintMapping;
-import org.eclipse.jetty.security.ConstraintSecurityHandler;
-import org.eclipse.jetty.security.HashLoginService;
-import org.eclipse.jetty.security.LoginService;
-import org.eclipse.jetty.security.RolePrincipal;
-import org.eclipse.jetty.security.UserPrincipal;
-import org.eclipse.jetty.security.authentication.BasicAuthenticator;
-import org.eclipse.jetty.security.AbstractLoginService;
-import org.eclipse.jetty.server.Handler;
-import org.eclipse.jetty.server.HttpChannel;
-import org.eclipse.jetty.server.HttpConfiguration;
-import org.eclipse.jetty.server.HttpConnectionFactory;
-import org.eclipse.jetty.server.Request;
-import org.eclipse.jetty.server.Response;
-import org.eclipse.jetty.server.SecureRequestCustomizer;
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.ServerConnector;
-import org.eclipse.jetty.server.SslConnectionFactory;
-import org.eclipse.jetty.server.UserIdentity;
-import org.eclipse.jetty.server.handler.ContextHandlerCollection;
-import org.eclipse.jetty.servlet.DefaultServlet;
-import org.eclipse.jetty.servlet.ErrorPageErrorHandler;
-import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.servlet.ServletHandler;
-import org.eclipse.jetty.servlet.ServletHolder;
-import org.eclipse.jetty.util.security.Constraint;
-import org.eclipse.jetty.util.ssl.SslContextFactory;
-import org.eclipse.jetty.webapp.WebAppContext;
-
 import com.tc.async.api.ConfigurationContext;
 import com.tc.async.api.SEDA;
 import com.tc.async.api.Sink;
@@ -89,6 +55,7 @@ import com.tc.net.OrderedGroupIDs;
 import com.tc.net.TCSocketAddress;
 import com.tc.net.core.BufferManagerFactoryProvider;
 import com.tc.net.core.BufferManagerFactoryProviderImpl;
+import com.tc.net.core.PipeSocket;
 import com.tc.net.core.security.TCPrincipal;
 import com.tc.net.core.security.TCSecurityManager;
 import com.tc.net.protocol.transport.ConnectionPolicy;
@@ -114,12 +81,12 @@ import com.tc.util.Conversion;
 import com.tc.util.Conversion.MetricsFormatException;
 import com.tc.util.ProductInfo;
 import com.terracottatech.config.DataStorage;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.management.ManagementFactory;
 import java.lang.ref.PhantomReference;
 import java.lang.ref.Reference;
 import java.lang.ref.ReferenceQueue;
@@ -136,17 +103,50 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
-
-import javax.security.auth.Subject;
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanRegistrationException;
 import javax.management.MBeanServer;
 import javax.management.NotCompliantMBeanException;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import javax.security.auth.Subject;
+import jakarta.servlet.http.HttpServletResponse;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.eclipse.jetty.ee10.servlet.DefaultServlet;
+import org.eclipse.jetty.ee10.servlet.ErrorPageErrorHandler;
+import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
+import org.eclipse.jetty.ee10.servlet.ServletHandler;
+import org.eclipse.jetty.ee10.servlet.ServletHolder;
+import org.eclipse.jetty.ee10.servlet.security.ConstraintMapping;
+import org.eclipse.jetty.ee10.servlet.security.ConstraintSecurityHandler;
+import org.eclipse.jetty.ee10.webapp.WebAppContext;
+import org.eclipse.jetty.http.HttpMethod;
+import org.eclipse.jetty.jmx.MBeanContainer;
+import org.eclipse.jetty.security.AbstractLoginService;
+import org.eclipse.jetty.security.Constraint;
+import org.eclipse.jetty.security.LoginService;
+import org.eclipse.jetty.security.RolePrincipal;
+import org.eclipse.jetty.security.UserIdentity;
+import org.eclipse.jetty.security.UserPrincipal;
+import org.eclipse.jetty.security.authentication.BasicAuthenticator;
+import org.eclipse.jetty.server.Handler;
+import org.eclipse.jetty.server.HttpConfiguration;
+import org.eclipse.jetty.server.HttpConnectionFactory;
+import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.server.Response;
+import org.eclipse.jetty.server.SecureRequestCustomizer;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.server.Session;
+import org.eclipse.jetty.server.SslConnectionFactory;
+import org.eclipse.jetty.server.handler.ContextHandlerCollection;
+import org.eclipse.jetty.server.handler.DefaultHandler;
+import org.eclipse.jetty.util.Callback;
+import org.eclipse.jetty.util.resource.PathResourceFactory;
+import org.eclipse.jetty.util.ssl.SslContextFactory;
 
 public class TCServerImpl extends SEDA implements TCServer {
 
@@ -155,9 +155,6 @@ public class TCServerImpl extends SEDA implements TCServer {
   public static final String                MANAGEMENT_NOT_LISTENING_ON_THAT_PORT_SERVLET_PATH                          = "/tc-management-api/*";
   public static final String                GROUP_INFO_SERVLET_PATH                      = "/groupinfo";
   public static final String                GROUPID_MAP_SERVLET_PATH                     = "/groupidmap";
-  public static final String                STATISTICS_GATHERER_SERVLET_PREFIX           = "/statistics-gatherer";
-  public static final String                STATISTICS_GATHERER_SERVLET_PATH             = STATISTICS_GATHERER_SERVLET_PREFIX
-                                                                                           + "/*";
   public static final String                L1_RECONNECT_PROPERTIES_FROML2_SERVELET_PATH = "/l1reconnectproperties";
 
   public static final String                HTTP_AUTHENTICATION_ROLE_STATISTICS          = "statistics";
@@ -639,16 +636,13 @@ public class TCServerImpl extends SEDA implements TCServer {
 
       TCServerImpl.this.httpServer = new Server() {
         @Override
-        public void handle(HttpChannel connection) throws IOException, ServletException {
-          Request request = connection.getRequest();
-          Response response = connection.getResponse();
-
+        public boolean handle(Request request, Response response, Callback callback) throws Exception {
           if (HttpMethod.TRACE.is(request.getMethod())) {
-            request.setHandled(true);
             response.setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
-          } else {
-            super.handle(connection);
+            callback.succeeded();
+            return true;
           }
+          return super.handle(request, response, callback);
         }
       };
       HttpConfiguration httpConfig = new HttpConfiguration();
@@ -808,21 +802,15 @@ public class TCServerImpl extends SEDA implements TCServer {
 
     this.contextHandlerCollection = new ContextHandlerCollection();
     Handler rootHandler = getRootHandler();
+    rootHandler.setServer(TCServerImpl.this.httpServer);
 
-    ServletContextHandler context = new ServletContextHandler(null, "/", ServletContextHandler.NO_SESSIONS
-                                                                         | ServletContextHandler.SECURITY);
+    ServletContextHandler context = new ServletContextHandler("/", false, true);
 
     if (commonL2Config.isSecure()) {
       final String pathSpec = "/*";
       final TCUserRealm userRealm = new TCUserRealm(securityManager);
       setupBasicAuth(context, pathSpec, userRealm, HTTP_SECURITY_ROLE);
       logger.info("HTTPS Authentication enabled for path '" + pathSpec + "'");
-    } else if (commonL2Config.httpAuthentication()) {
-      final HashLoginService userRealm = new HashLoginService("Terracotta Statistics Gatherer",
-                                                              commonL2Config.httpAuthenticationUserRealmFile());
-      setupBasicAuth(context, STATISTICS_GATHERER_SERVLET_PATH, userRealm, HTTP_AUTHENTICATION_ROLE_STATISTICS);
-      logger.info("HTTP Authentication enabled for path '" + STATISTICS_GATHERER_SERVLET_PATH
-                  + "', using user realm file '" + commonL2Config.httpAuthenticationUserRealmFile() + "'");
     }
 
     context.setAttribute(ConfigServlet.CONFIG_ATTRIBUTE, this.configurationSetupManager);
@@ -849,7 +837,7 @@ public class TCServerImpl extends SEDA implements TCServer {
       tcInstallDirValid = true;
       resourceBaseDir = tcInstallDir;
     }
-    context.setResourceBase(resourceBaseDir.getAbsolutePath());
+    context.setBaseResource(new PathResourceFactory().newResource(resourceBaseDir.toURI()));
 
     createAndAddServlet(servletHandler, VersionServlet.class.getName(), VERSION_SERVLET_PATH);
     createAndAddServlet(servletHandler, ConfigServlet.class.getName(), CONFIG_SERVLET_PATH);
@@ -881,11 +869,16 @@ public class TCServerImpl extends SEDA implements TCServer {
     }
 
     context.setServletHandler(servletHandler);
-    context.setVirtualHosts(new String[] { "@" + CONNECTOR_NAME_TERRACOTTA });
+    context.setVirtualHosts(Collections.singletonList("@" + CONNECTOR_NAME_TERRACOTTA));
     contextHandlerCollection.addHandler(context);
 
     this.httpServer.setHandler(rootHandler);
-    this.httpServer.setSessionIdManager(new TcHashSessionIdManager());
+    this.httpServer.addBean(new TcHashSessionIdManager(this.httpServer), true);
+
+    MBeanContainer mbeanContainer = new MBeanContainer(ManagementFactory.getPlatformMBeanServer());
+    this.httpServer.addBean(mbeanContainer);
+
+    this.httpServer.setDefaultHandler(new DefaultHandler(false, true));
 
     try {
       this.httpServer.start();
@@ -945,7 +938,7 @@ public class TCServerImpl extends SEDA implements TCServer {
         logger.info("deploying management REST services from archive " + warFile);
         WebAppContext restContext = new WebAppContext();
         restContext.setTempDirectory(warTempDir);
-        restContext.setVirtualHosts(new String[] { "@" + CONNECTOR_NAME_MANAGEMENT });
+        restContext.setVirtualHosts(Collections.singletonList("@" + CONNECTOR_NAME_MANAGEMENT));
 
         restContext.setContextPath("/tc-management-api");
         restContext.setWar(warFile);
@@ -1002,13 +995,11 @@ public class TCServerImpl extends SEDA implements TCServer {
 
   private void setupBasicAuth(final ServletContextHandler context, final String pathSpec,
                               final LoginService loginService, String... roles) {
-    Constraint constraint = new Constraint();
-    constraint.setName(Constraint.__BASIC_AUTH);
-    constraint.setRoles(roles);
-    constraint.setAuthenticate(true);
+    Constraint.Builder constaintBuilder = new Constraint.Builder();
+    constaintBuilder.roles(roles).authorization(Constraint.Authorization.SPECIFIC_ROLE).name("BASIC");
 
     ConstraintMapping cm = new ConstraintMapping();
-    cm.setConstraint(constraint);
+    cm.setConstraint(constaintBuilder.build());
     cm.setPathSpec(pathSpec);
 
     ConstraintSecurityHandler sh = new ConstraintSecurityHandler();
@@ -1207,7 +1198,7 @@ public class TCServerImpl extends SEDA implements TCServer {
     }
 
     @Override
-    public UserIdentity login(final String username, final Object credentials, ServletRequest request ) {
+    public UserIdentity login(final String username, final Object credentials, Request request, Function<Boolean, Session> getOrCreateSession) {
       final TCPrincipal userPrincipal = (TCPrincipal) securityManager.authenticate(username, ((String) credentials).toCharArray());
       if (userPrincipal == null) {
         return null;

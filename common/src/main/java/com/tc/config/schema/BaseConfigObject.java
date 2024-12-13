@@ -16,7 +16,7 @@
  */
 package com.tc.config.schema;
 
-import org.apache.commons.lang.ClassUtils;
+import org.apache.commons.lang3.ClassUtils;
 import org.apache.xmlbeans.XmlObject;
 
 import com.tc.config.schema.context.ConfigContext;
