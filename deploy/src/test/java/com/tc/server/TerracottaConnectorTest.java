@@ -16,6 +16,7 @@
  */
 package com.tc.server;
 
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.LocalConnector;
 import org.eclipse.jetty.server.Server;
@@ -154,7 +155,7 @@ public class TerracottaConnectorTest {
     LocalConnector.LocalEndPoint endPoint = terracottaConnector.connect();
 
     try {
-      terracottaConnector.spawnReader(clientSocket, new byte[0], endPoint);
+      terracottaConnector.spawnReader(clientSocket, new byte[0], endPoint, new AtomicBoolean());
       fail("expected RejectedExecutionException");
     } catch (RejectedExecutionException ree) {
       // expected
@@ -189,10 +190,11 @@ public class TerracottaConnectorTest {
     jetty.start();
 
     LocalConnector.LocalEndPoint endPoint = terracottaConnector.connect();
-    Future<?> reader = terracottaConnector.spawnReader(clientSocket, new byte[0], endPoint);
+    AtomicBoolean responseReceived = new AtomicBoolean();
+    Future<?> reader = terracottaConnector.spawnReader(clientSocket, new byte[0], endPoint, responseReceived);
 
     try {
-      terracottaConnector.spawnWriter(clientSocket, endPoint, reader);
+      terracottaConnector.spawnWriter(clientSocket, endPoint, reader, responseReceived);
       fail("expected RejectedExecutionException");
     } catch (RejectedExecutionException ree) {
       // expected

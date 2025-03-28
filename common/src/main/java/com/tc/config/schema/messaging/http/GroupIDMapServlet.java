@@ -16,6 +16,7 @@
  */
 package com.tc.config.schema.messaging.http;
 
+import java.io.ByteArrayOutputStream;
 import org.apache.commons.io.IOUtils;
 import org.terracotta.groupConfigForL1.GroupnameId;
 import org.terracotta.groupConfigForL1.GroupnameIdMapDocument;
@@ -25,7 +26,6 @@ import com.tc.config.schema.ActiveServerGroupConfig;
 import com.tc.config.schema.setup.L2ConfigurationSetupManager;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.math.BigInteger;
 import java.util.List;
 
@@ -50,9 +50,9 @@ public class GroupIDMapServlet extends HttpServlet {
       groupnameId.setGid(new BigInteger(String.valueOf(group.getGroupId().toInt())));
     }
 
-    OutputStream out = response.getOutputStream();
-    int bytesCopied = IOUtils.copy(groupnameIdMapDocument.newInputStream(), out);
-    response.setContentLength(bytesCopied);
+    ByteArrayOutputStream bout = new ByteArrayOutputStream(8192);
+    response.setContentLength(IOUtils.copy(groupnameIdMapDocument.newInputStream(), bout));
+    bout.writeTo(response.getOutputStream());
     response.flushBuffer();
   }
 }

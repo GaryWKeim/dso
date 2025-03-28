@@ -16,6 +16,7 @@
  */
 package com.tc.config.schema.messaging.http;
 
+import java.io.ByteArrayOutputStream;
 import org.apache.commons.io.IOUtils;
 import org.terracotta.groupConfigForL1.ServerGroup;
 import org.terracotta.groupConfigForL1.ServerGroupsDocument;
@@ -43,7 +44,7 @@ public class GroupInfoServlet extends HttpServlet {
   public static final String                   GROUP_INFO_ATTRIBUTE = GroupInfoServlet.class.getName() + ".groupinfo";
 
   private volatile L2ConfigurationSetupManager configSetupManager;
-  private ServerGroupsDocument                 serverGroupsDocument = null;
+  private volatile ServerGroupsDocument        serverGroupsDocument = null;
   private Map<String, Integer>                 serverNameToTsaPort;
   private Map<String, String>                  serverNameToHostName;
 
@@ -106,9 +107,9 @@ public class GroupInfoServlet extends HttpServlet {
   @Override
   protected synchronized void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
     createDocumentToSend();
-    OutputStream out = getOutPutStream(response);
-    int bytesCopied = IOUtils.copy(this.serverGroupsDocument.newInputStream(), out);
-    response.setContentLength(bytesCopied);
+    ByteArrayOutputStream bout = new ByteArrayOutputStream(8192);
+    response.setContentLength(IOUtils.copy(this.serverGroupsDocument.newInputStream(), bout));
+    bout.writeTo(getOutPutStream(response));
     response.flushBuffer();
   }
 

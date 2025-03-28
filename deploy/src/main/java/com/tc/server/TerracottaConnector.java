@@ -17,6 +17,7 @@
 package com.tc.server;
 
 import com.tc.util.MultiIOExceptionHandler;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.LocalConnector;
 import org.eclipse.jetty.server.Server;
@@ -83,34 +84,42 @@ public class TerracottaConnector extends LocalConnector {
   }
 
   public Future<?> handleSocketFromDSO(Socket socket, byte[] data) {
+    //LOGGER.info("handleSocketFromDSO data: " + new String(data));
+
     Consumer<Socket> reclaimer = this.reclaimer;
     if (reclaimer != null) {
       reclaimer.accept(socket);
     }
+    AtomicBoolean responseReceived = new AtomicBoolean();
     LocalEndPoint endPoint = this.connect();
-    Future<?> reader = spawnReader(socket, data, endPoint);
-    return spawnWriter(socket, endPoint, reader);
+    Future<?> reader = spawnReader(socket, data, endPoint, responseReceived);
+    return spawnWriter(socket, endPoint, reader, responseReceived);
   }
 
-  Future<?> spawnReader(Socket socket, byte[] data, LocalEndPoint endPoint) {
+  Future<?> spawnReader(Socket socket, byte[] data, LocalEndPoint endPoint, AtomicBoolean responseReceived) {
     try {
       return executorService.submit(() -> {
         try {
           endPoint.addInput(ByteBuffer.wrap(data));
 
-          try (InputStream inputStream = socket.getInputStream()) {
-            while (true) {
-              byte[] buffer = new byte[128];
-              int read = inputStream.read(buffer);
-              if (read == -1) {
-                break;
-              }
+          InputStream inputStream = socket.getInputStream();
+          while (!responseReceived.get()) {
+            byte[] buffer = new byte[256];
+            int read = inputStream.read(buffer);
+            if (read == -1) {
+              break;
+            }
+            if (!responseReceived.get()) {
+              //LOGGER.info("spawnReader addInput: " + new String(data) + new String(buffer, 0, read));
               endPoint.addInput(ByteBuffer.wrap(buffer, 0, read));
             }
           }
+          //LOGGER.info("spawnReader got EOF");
         } catch (Exception e) {
           if (!(IOException.class.isAssignableFrom(e.getClass()))) {
             LOGGER.error("Error processing an HTTP request (reader side)", e);
+          } else {
+            //LOGGER.info("spawnReader", e);
           }
         }
       });
@@ -124,14 +133,16 @@ public class TerracottaConnector extends LocalConnector {
     }
   }
 
-  Future<?> spawnWriter(Socket socket, LocalEndPoint endPoint, Future<?> reader) {
+  Future<?> spawnWriter(Socket socket, LocalEndPoint endPoint, Future<?> reader, AtomicBoolean responseReceived) {
     try {
       return executorService.submit(() -> {
         try {
           ByteBuffer byteBuffer = endPoint.waitForOutput(getIdleTimeout(), TimeUnit.MILLISECONDS);
           if (byteBuffer != null && byteBuffer.remaining() > 0) {
+            responseReceived.set(true);
             try (WritableByteChannel channel = Channels.newChannel(socket.getOutputStream())) {
               while (byteBuffer.hasRemaining()) {
+                //LOGGER.info("spawnWriter write: " + new String(byteBuffer.array()));
                 channel.write(byteBuffer);
               }
             }
@@ -139,6 +150,8 @@ public class TerracottaConnector extends LocalConnector {
         } catch (Exception e) {
           if (!(IOException.class.isAssignableFrom(e.getClass()))) {
             LOGGER.error("Error processing an HTTP request (writer side)", e);
+          } else {
+            //LOGGER.info("spawnWriter", e);
           }
         } finally {
           MultiIOExceptionHandler m = new MultiIOExceptionHandler();

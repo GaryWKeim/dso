@@ -16,13 +16,12 @@
  */
 package com.tc.config.schema.messaging.http;
 
+import java.io.ByteArrayOutputStream;
 import org.apache.commons.io.IOUtils;
 
 import com.tc.config.schema.setup.L2ConfigurationSetupManager;
 
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintWriter;
 import java.util.Map;
 
 import jakarta.servlet.http.HttpServlet;
@@ -45,13 +44,12 @@ public class ConfigServlet extends HttpServlet {
     Map params = request.getParameterMap();
 
     if (params.size() == 0) {
-      OutputStream out = response.getOutputStream();
-      int bytesCopied = IOUtils.copy(this.configSetupManager.effectiveConfigFile(), out);
-      response.setContentLength(bytesCopied);
+      ByteArrayOutputStream bout = new ByteArrayOutputStream(8192);
+      response.setContentLength(IOUtils.copy(this.configSetupManager.effectiveConfigFile(), bout));
+      bout.writeTo(response.getOutputStream());
     } else {
       response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-      PrintWriter writer = response.getWriter();
-      writer.println("request not understood");
+      response.getWriter().println("request not understood");
     }
 
     response.flushBuffer();

@@ -179,6 +179,8 @@ public class ConfigInfoFromL2Impl implements ConfigInfoFromL2 {
         try {
           return new ParseXmlObjectStream<T>().parse(message, in, factoryParser);
         } catch (SAXParseException e) {
+          logger.info("Got an XML parse exception retrieving '" + httpPath + "'", e);
+
           if (tries++ < 10) {
             logger.warn("Got an XML parse exception retrieving L1 reconnect properties. Retrying...");
             continue;
